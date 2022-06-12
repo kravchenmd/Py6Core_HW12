@@ -1,10 +1,10 @@
+import shelve
 from collections import UserDict
 from typing import Union
 from datetime import datetime
 import re
 
 EXIT_COMMANDS = ('good bye', 'close', 'exit')
-PAGINATION = 2  # default number of contacts per page
 
 
 # for rising custom errors in 'add_contact' function
@@ -138,7 +138,7 @@ class Record:
 
 
 class AddressBook(UserDict):
-    def __init__(self, pagination: int = PAGINATION) -> None:
+    def __init__(self, pagination: int = 2) -> None:
         super().__init__()
         self.pagination = pagination
         self.current_index = 0
@@ -324,34 +324,65 @@ def exit_program():
 
 
 def choose_command(cmd: str) -> tuple:
-    if cmd in EXIT_COMMANDS:
-        return exit_program, []
-
+    # redone with match-statement instead of if-ones
+    # code is more readable and shorter! =)
     cmd = parse_command(cmd)
-    cmd_check = cmd[0].lower()
-    if cmd_check == 'hello':
-        return hello, cmd[1:]
-    if cmd_check == 'add':
-        return add_contact, cmd[1:]
-    if cmd_check == 'change':
-        return edit_phone, cmd[1:]
-    if cmd_check == 'remove':
-        return remove_phone, cmd[1:]
-    if cmd_check == 'phone':
-        return show_phone, cmd[1:]
-    if cmd_check == 'show' and len(cmd) > 1:
-        # take into account that this command consists 2 words
-        cmd_check = cmd[1].lower()
-        if cmd_check == 'all':
+
+    match cmd:
+        case ['close'] | ['exit'] | ['good', 'bye']:
+            return exit_program, []
+        case ['hello']:
+            return hello, cmd[1:]
+        case ['add', *_]:
+            return add_contact, cmd[1:]
+        case ['change', *_]:
+            return edit_phone, cmd[1:]
+        case ['remove', *_]:
+            return remove_phone, cmd[1:]
+        case ['phone', *_]:
+            return show_phone, cmd[1:]
+        case ['show', 'all'] | ['show_all']:
             return show_all_phones, []
-    if cmd_check == 'edit' and len(cmd) > 1:
-        # take into account that this command consists 2 words
-        cmd_check = cmd[1].lower()
-        if cmd_check == 'birthday':
+        case ['edit', 'birthday'] | ['edit_birthday']:
             return edit_birthday, cmd[2:]
-    if cmd_check == 'days_to_birthday':
-        return days_to_birthday, cmd[1:]
-    return None, "Unknown command!"
+        case ['days', 'to', 'birthday', *_] | ['days_to_birthday', *_]:
+            return days_to_birthday, cmd[1:]
+        case ['save']:
+            return save_contacts, cmd[1:]
+        case ['load']:
+            return load_contacts, cmd[1:]
+        case _:
+            return None, "Unknown command!"
+
+    # # Just in case here is old block with if-statements
+    # if cmd in EXIT_COMMANDS:
+    #     return exit_program, []
+    #
+    # cmd = parse_command(cmd)
+    # cmd_check = cmd[0].lower()
+    # if cmd_check == 'hello':
+    #     return hello, cmd[1:]
+    # if cmd_check == 'add':
+    #     return add_contact, cmd[1:]
+    # if cmd_check == 'change':
+    #     return edit_phone, cmd[1:]
+    # if cmd_check == 'remove':
+    #     return remove_phone, cmd[1:]
+    # if cmd_check == 'phone':
+    #     return show_phone, cmd[1:]
+    # if cmd_check == 'show' and len(cmd) > 1:
+    #     # take into account that this command consists 2 words
+    #     cmd_check = cmd[1].lower()
+    #     if cmd_check == 'all':
+    #         return show_all_phones, []
+    # if cmd_check == 'edit' and len(cmd) > 1:
+    #     # take into account that this command consists 2 words
+    #     cmd_check = cmd[1].lower()
+    #     if cmd_check == 'birthday':
+    #         return edit_birthday, cmd[2:]
+    # if cmd_check == 'days_to_birthday':
+    #     return days_to_birthday, cmd[1:]
+    # return None, "Unknown command!"
 
 
 def parse_command(cmd: str) -> list:
