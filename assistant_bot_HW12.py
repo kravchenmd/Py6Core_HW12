@@ -3,6 +3,7 @@ from collections import UserDict
 from typing import Union
 from datetime import datetime
 import re
+from pathlib import Path
 
 EXIT_COMMANDS = ('good bye', 'close', 'exit')
 
@@ -323,6 +324,32 @@ def exit_program():
     return "Good bye!"
 
 
+@func_arg_error
+def save_contacts(contacts: AddressBook, filename: str = 'database/contacts_db') -> str:
+    path = Path(filename)
+    path.mkdir(parents=True, exist_ok=True)
+    # print(path.exists())
+    # print(path.parent)
+    # print(path.parent.exists())
+    # print(path.is_dir())
+    # print(path.is_file())
+
+    with shelve.open(filename) as db:
+        db['contacts'] = contacts.data
+    return f"Contacts were saved to '{filename}' successfully!"
+
+
+@func_arg_error
+def load_contacts(contacts: AddressBook, filename: str = 'database/contacts_db') -> str:
+    path = Path(filename)
+    if not path.exists():
+        return f"File '{filename}' does not exist!"
+
+    with shelve.open(filename) as db:
+        contacts.data = db['contacts']
+    return f"Contacts were loaded from '{filename}' successfully!"
+
+
 def choose_command(cmd: str) -> tuple:
     # redone with match-statement instead of if-ones
     # code is more readable and shorter! =)
@@ -392,8 +419,8 @@ def parse_command(cmd: str) -> list:
 def handle_cmd(cmd: str, contacts: AddressBook) -> tuple:
     func, result = choose_command(cmd)
     if func:
-        # else part to take into account hello() and show()
         args = [contacts] + result if func not in (hello, exit_program) else result
+        # else part to take into account hello() and show()
         result = func(*args)
     return func, result
 
