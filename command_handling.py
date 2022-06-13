@@ -35,7 +35,8 @@ def choose_command(cmd: str) -> tuple:
         case _:
             return None, "Unknown command!"
 
-    # # Just in case here is old block with if-statements
+    # Just in case here is old block with if-statements
+
     # if cmd in EXIT_COMMANDS:
     #     return exit_program, []
     #

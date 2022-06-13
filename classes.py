@@ -1,8 +1,10 @@
 # for rising custom errors in 'add_contact' function
 import re
+import shelve
 from collections import UserDict
 from datetime import datetime
-from typing import Union
+from pathlib import Path
+from typing import Union, Dict
 
 
 class FieldException(Exception):
@@ -140,9 +142,7 @@ class AddressBook(UserDict):
         self.pagination = pagination
         self.current_index = 0
         self.current_page = 0  # for showing page number in terminal
-
-    def add_record(self, name: str, record: Record) -> None:
-        self.data[name] = record
+        self.data: Dict[str, Record] = {}  # for excluding PyCharm error in def load
 
     def __iter__(self):
         return self
@@ -170,3 +170,27 @@ class AddressBook(UserDict):
 
         result = '\n'.join(result) + page_end
         return result
+
+    def add_record(self, name: str, record: Record) -> None:
+        self.data[name] = record
+
+    def save(self, filename: str = 'database/contacts_db') -> str:
+        path = Path(filename)
+        path.mkdir(parents=True, exist_ok=True)
+
+        with shelve.open(filename) as db:
+            db['contacts'] = dict(self.data)
+        return f"Contacts were saved to '{filename}' successfully!"
+
+    def load(self, filename: str = 'database/contacts_db') -> str:
+        path = Path(filename)
+        if not path.exists():
+            return f"File '{filename}' does not exist!"
+
+        with shelve.open(filename) as db:
+            print(db['contacts'])
+
+            self.data: object = db['contacts']
+            # temporary hot-fix because otherwise PyCharm complains about type of db['contacts'] or
+            # noinspection PyTypeChecker
+        return f"Contacts were loaded from '{filename}' successfully!"

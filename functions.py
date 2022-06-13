@@ -1,7 +1,4 @@
-import shelve
 from datetime import datetime
-from pathlib import Path
-
 from classes import AddressBook, Phone, Birthday, Name, Record, FieldException
 
 
@@ -154,31 +151,17 @@ def exit_program():
 
 @func_arg_error
 def save_contacts(contacts: AddressBook, filename: str = 'database/contacts_db') -> str:
-    path = Path(filename)
-    path.mkdir(parents=True, exist_ok=True)
-    # print(path.exists())
-    # print(path.parent)
-    # print(path.parent.exists())
-    # print(path.is_dir())
-    # print(path.is_file())
-
-    with shelve.open(filename) as db:
-        db['contacts'] = contacts.data
-    return f"Contacts were saved to '{filename}' successfully!"
+    result = contacts.save(filename)
+    return result
 
 
 @func_arg_error
 def load_contacts(contacts: AddressBook, filename: str = 'database/contacts_db') -> str:
-    path = Path(filename)
-    if not path.exists():
-        return f"File '{filename}' does not exist!"
-
-    with shelve.open(filename) as db:
-        contacts.data = db['contacts']
-    return f"Contacts were loaded from '{filename}' successfully!"
+    result = contacts.load(filename)
+    return result
 
 
 @func_arg_error
-def find_contact(contacts: AddressBook, name: str) -> str:
+def find_contact(contacts: AddressBook, search: str) -> str:
     # TODO: implement
     pass
