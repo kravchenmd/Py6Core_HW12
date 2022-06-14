@@ -8,7 +8,7 @@ def choose_command(cmd: str) -> tuple:
     cmd = parse_command(cmd)
 
     match cmd:
-        case ['close'] | ['exit'] | ['good', 'bye']:
+        case ['close'] | ['exit'] | ['goodbye']:
             return f.exit_program, []
         case ['hello']:
             return f.hello, cmd[1:]

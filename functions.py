@@ -45,7 +45,7 @@ def add_contact(contacts: AddressBook, name: str, phone: str = '', birthday: str
 
     if name in contacts.data.keys():
         if not phone and not birthday:
-            return "ERROR: The name itself of the contact is already created! Try to update it!"
+            return "ERROR: The contact with this name is already created! Try to update it!"
         if phone:
             try:
                 contacts.data[name].add_phone(p)

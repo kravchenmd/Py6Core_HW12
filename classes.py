@@ -88,8 +88,8 @@ class Record:
         self.phone_list: list[Phone] = []
         self.birthday: Union[Birthday, None] = None
 
-    # return f"Name '{self.name}' is already in contacts!\n" \
-    #        "Try another name or change existing contact"
+    def __str__(self) -> str:
+        return f"{self.name.get_name() : <10}:\t{self.get_phones() : ^13}\t{self.get_birthday() : >10}\n"
 
     def add_phone(self, phone: Phone) -> str:
         if phone.get_phone() in [phone.get_phone() for phone in self.phone_list]:
@@ -155,18 +155,17 @@ class AddressBook(UserDict):
 
         result = ''
 
-        page_end = f"{'--end--' : ^20}"  # at the end of the data
+        page_end = f"{'--end--' : ^33}"  # at the end of the data
         for i in range(self.current_index, self.current_index + self.pagination):
             if i >= len(self.data):
                 break
             name = list(self.data.keys())[i]
-            result += f"{self.data.get(name).name.get_name()}:\t{self.data.get(name).get_phones()}"\
-                      f"\t{self.data.get(name).get_birthday()}\n"
+            result += f"{self.data.get(name)}"  # __str__()
             self.current_index += 1
         else:
             if self.current_index < len(self.data):
                 self.current_page += 1
-                page_end = f"{'--' + str(self.current_page) + '--' : ^20}\n"  # at the end of each page
+                page_end = f"{'--' + str(self.current_page) + '--' : ^33}\n"  # at the end of each page
 
         result += page_end
         return result
@@ -210,7 +209,6 @@ class AddressBook(UserDict):
         result = ''
 
         for record in self.data.values():
-            if search_string in record.name.get_name().lower() or search_string in record.get_phones():
-                result += f"{record.name.get_name()}:\t{record.get_phones()}\t{record.get_birthday()}\n"
-        return result
-
+            if search_string.lower() in record.name.get_name().lower() or search_string in record.get_phones():
+                result += f"{record}"
+        return result[:-1]  # remove last '\n'
