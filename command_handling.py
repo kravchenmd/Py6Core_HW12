@@ -31,7 +31,7 @@ def choose_command(cmd: str) -> tuple:
         case ['load']:
             return f.load_contacts, cmd[1:]
         case ['find', *_]:
-            return f.find_contact, cmd[1:]
+            return f.find_contacts, cmd[1:]
         case _:
             return None, "Unknown command!"
 

@@ -12,8 +12,9 @@ def func_arg_error(func):
             f_name = func.__name__
             if f_name in ('exit_program', 'hello', 'show_all_phones'):
                 return "ERROR: This command has to be written without arguments!"
-            if f_name in ('show_phone', 'days_to_birthday'):
-                return "ERROR: This command needs 1 arguments: 'name' separated by 1 space!"
+            if f_name in ('show_phone', 'days_to_birthday', 'find_contacts'):
+                return "ERROR: This command needs 1 arguments: "\
+                        f"'{'search_word' if f_name == 'find_contacts' else 'name'}' separated by 1 space! "
             if f_name in ('add_contact',):
                 return "ERROR: This command needs 1 obligatory argument 'name' and 2 supplementary " \
                        "'phone' and 'birthday' separated by 1 space!"
@@ -151,17 +152,19 @@ def exit_program():
 
 @func_arg_error
 def save_contacts(contacts: AddressBook, filename: str = 'database/contacts_db') -> str:
-    result = contacts.save(filename)
+    result = contacts.save_to(filename)
     return result
 
 
 @func_arg_error
 def load_contacts(contacts: AddressBook, filename: str = 'database/contacts_db') -> str:
-    result = contacts.load(filename)
+    data, result = contacts.load_from(filename)
+    if not (data is None):
+        contacts.data = data
     return result
 
 
 @func_arg_error
-def find_contact(contacts: AddressBook, search: str) -> str:
-    # TODO: implement
-    pass
+def find_contacts(contacts: AddressBook, search_string: str) -> str:
+    result = contacts.find(search_string)
+    return result

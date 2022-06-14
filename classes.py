@@ -153,28 +153,28 @@ class AddressBook(UserDict):
             self.current_page = 0
             raise StopIteration
 
-        result = []
+        result = ''
 
-        page_end = f"\n{'--end--' : ^20}"  # at the end of the data
+        page_end = f"{'--end--' : ^20}"  # at the end of the data
         for i in range(self.current_index, self.current_index + self.pagination):
             if i >= len(self.data):
                 break
             name = list(self.data.keys())[i]
-            result.append(f"{self.data.get(name).name.get_name()}:\t{self.data.get(name).get_phones()}" +
-                          f"\t{self.data.get(name).get_birthday()}")
+            result += f"{self.data.get(name).name.get_name()}:\t{self.data.get(name).get_phones()}"\
+                      f"\t{self.data.get(name).get_birthday()}\n"
             self.current_index += 1
         else:
             if self.current_index < len(self.data):
                 self.current_page += 1
-                page_end = f"\n{'--' + str(self.current_page) + '--' : ^20}\n"  # at the end of each page
+                page_end = f"{'--' + str(self.current_page) + '--' : ^20}\n"  # at the end of each page
 
-        result = '\n'.join(result) + page_end
+        result += page_end
         return result
 
     def add_record(self, name: str, record: Record) -> None:
         self.data[name] = record
 
-    def save(self, filename: str = 'database/contacts_db') -> str:
+    def save_to(self, filename: str = 'database/contacts_db') -> str:
         path = Path(filename)
         path.mkdir(parents=True, exist_ok=True)
 
@@ -182,15 +182,35 @@ class AddressBook(UserDict):
             db['contacts'] = dict(self.data)
         return f"Contacts were saved to '{filename}' successfully!"
 
-    def load(self, filename: str = 'database/contacts_db') -> str:
+    @staticmethod
+    def load_from(filename: str = 'database/contacts_db'):
         path = Path(filename)
         if not path.exists():
-            return f"File '{filename}' does not exist!"
+            return None, f"File '{filename}' does not exist!"
 
         with shelve.open(filename) as db:
-            print(db['contacts'])
+            _ = AddressBook()
+            _.data = db['contacts']
+            return _.data, f"Contacts were loaded from '{filename}' successfully!"
 
-            self.data: object = db['contacts']
-            # temporary hot-fix because otherwise PyCharm complains about type of db['contacts'] or
-            # noinspection PyTypeChecker
-        return f"Contacts were loaded from '{filename}' successfully!"
+    # Just for myself to remember
+
+    # def load(self, filename: str = 'database/contacts_db') -> str:
+    #     path = Path(filename)
+    #     if not path.exists():
+    #         return f"File '{filename}' does not exist!"
+    #
+    #     with shelve.open(filename) as db:
+    #         self.data = db['contacts']
+    #         # temporary hot-fix because otherwise PyCharm complains about type of db['contacts'] or
+    #         # noinspection PyTypeChecker
+    #     return f"Contacts were loaded from '{filename}' successfully!"
+
+    def find(self, search_string: str) -> str:
+        result = ''
+
+        for record in self.data.values():
+            if search_string in record.name.get_name().lower() or search_string in record.get_phones():
+                result += f"{record.name.get_name()}:\t{record.get_phones()}\t{record.get_birthday()}\n"
+        return result
+
