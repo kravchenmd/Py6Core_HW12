@@ -1,4 +1,4 @@
-# PyCore6: Homework 6 (Kravchenko Michail)
+# PyCore6: Homework 12 (Kravchenko Michail)
 
 ## Комментарии к изменениям и функционалу
 
